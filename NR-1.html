@@ -1,0 +1,1287 @@
+<!-- =========================================
+MELHORIAS IMPLEMENTADAS:
+✔ Layout parecido com a imagem enviada
+✔ Cards no topo
+✔ Sidebar moderna
+✔ localStorage automático
+✔ Peso por prioridade
+✔ Filtros
+✔ Histórico de avaliações
+✔ Chatbot IA NR-1 restrito
+✔ PDF profissional
+✔ Interface premium
+✔ Sem Node.js
+========================================= -->
+
+<!-- ADICIONE ESTES LINKS NO <head> -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+:root{
+--blue:#0b5cff;
+--dark:#081b4b;
+--bg:#f4f7ff;
+--card:#ffffff;
+--border:#e5e9f5;
+--green:#00b26b;
+--orange:#ff9800;
+--red:#ff4b5c;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+background:var(--bg);
+display:flex;
+min-height:100vh;
+color:#1d2a57;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:260px;
+background:linear-gradient(180deg,#071b52,#0d47c9);
+padding:25px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+}
+
+.logo h1{
+color:white;
+font-size:28px;
+margin-bottom:8px;
+}
+
+.logo p{
+color:#c7d7ff;
+font-size:14px;
+}
+
+.menu{
+margin-top:40px;
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+.menu button{
+background:transparent;
+border:none;
+color:white;
+padding:15px;
+border-radius:14px;
+text-align:left;
+cursor:pointer;
+font-size:15px;
+transition:.3s;
+}
+
+.menu button:hover{
+background:rgba(255,255,255,.1);
+}
+
+.user-box{
+background:rgba(255,255,255,.08);
+padding:18px;
+border-radius:18px;
+color:white;
+}
+
+/* MAIN */
+
+.main{
+flex:1;
+padding:30px;
+}
+
+/* TOPO */
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+}
+
+
+
+.topbar h1{
+font-size:34px;
+color:var(--dark);
+}
+
+.topbar p{
+color:#64739c;
+}
+
+/* CARDS */
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:25px;
+}
+
+.card{
+background:var(--card);
+border-radius:22px;
+padding:24px;
+border:1px solid var(--border);
+box-shadow:0 10px 30px rgba(0,0,0,.04);
+}
+
+.card h3{
+font-size:14px;
+color:#6d7a9d;
+margin-bottom:10px;
+}
+
+.card .value{
+font-size:38px;
+font-weight:800;
+color:var(--dark);
+}
+
+/* GRID */
+
+.content{
+display:grid;
+grid-template-columns:1fr 360px;
+gap:25px;
+}
+
+/* TABLE */
+
+.table-box{
+background:white;
+padding:25px;
+border-radius:24px;
+border:1px solid var(--border);
+}
+
+.filters{
+display:flex;
+gap:12px;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+.filters select,
+.filters input{
+padding:12px;
+border-radius:12px;
+border:1px solid var(--border);
+background:#f8faff;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+text-align:left;
+padding:14px;
+font-size:13px;
+color:#6d7a9d;
+}
+
+td{
+padding:16px 14px;
+border-top:1px solid #edf1fb;
+}
+
+.priority{
+padding:8px 14px;
+border-radius:999px;
+font-weight:700;
+font-size:13px;
+}
+
+.alta{
+background:#ffe3e6;
+color:#d11a2a;
+}
+
+.media{
+background:#fff3da;
+color:#b87300;
+}
+
+.baixa{
+background:#ddf7e8;
+color:#07894d;
+}
+
+.status-ok{
+color:var(--green);
+font-weight:700;
+}
+
+.status-bad{
+color:var(--red);
+font-weight:700;
+}
+
+/* CHATBOT */
+
+.ai-box{
+background:white;
+border-radius:24px;
+padding:25px;
+border:1px solid var(--border);
+height:fit-content;
+}
+
+.ai-title{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:18px;
+}
+
+.badge{
+background:#efe7ff;
+color:#6b32ff;
+padding:6px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:700;
+}
+
+.chat{
+height:300px;
+overflow:auto;
+background:#f8faff;
+padding:15px;
+border-radius:18px;
+margin-bottom:14px;
+}
+
+.msg{
+margin-bottom:14px;
+padding:12px;
+border-radius:14px;
+line-height:1.5;
+}
+
+.bot{
+background:white;
+}
+
+.user{
+background:#dce8ff;
+}
+
+.chat-input{
+display:flex;
+gap:10px;
+}
+
+.chat-input input{
+flex:1;
+padding:14px;
+border-radius:14px;
+border:1px solid var(--border);
+}
+
+.chat-input button{
+background:var(--blue);
+color:white;
+border:none;
+padding:14px 20px;
+border-radius:14px;
+cursor:pointer;
+}
+
+/* BUTTONS */
+
+.actions{
+margin-top:25px;
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.actions button{
+padding:16px 24px;
+border:none;
+border-radius:16px;
+font-weight:700;
+cursor:pointer;
+}
+
+.primary{
+background:linear-gradient(135deg,#0b5cff,#2d8cff);
+color:white;
+}
+
+.secondary{
+background:#eef3ff;
+color:#16316f;
+}
+
+/* HISTÓRICO */
+
+.history{
+margin-top:25px;
+background:white;
+padding:25px;
+border-radius:24px;
+border:1px solid var(--border);
+}
+
+.history-item{
+padding:14px;
+background:#f8faff;
+border-radius:14px;
+margin-top:12px;
+}
+
+@media(max-width:1200px){
+
+.content{
+grid-template-columns:1fr;
+}
+
+.sidebar{
+display:none;
+}
+
+}
+
+/* =========================================
+TOOLTIPS NR-1
+========================================= */
+
+.keyword{
+position:relative;
+cursor:help;
+font-weight:600;
+color:#0b5cff;
+transition:.2s;
+border-bottom:1px dashed #0b5cff;
+}
+
+.keyword:hover{
+color:#003ecf;
+}
+
+.keyword::after{
+
+content:attr(data-tooltip);
+
+position:absolute;
+
+bottom:130%;
+left:50%;
+
+transform:translateX(-50%);
+
+background:#081b4b;
+color:white;
+
+padding:12px 14px;
+
+border-radius:14px;
+
+font-size:13px;
+font-weight:500;
+line-height:1.5;
+
+width:260px;
+
+opacity:0;
+visibility:hidden;
+
+transition:.25s;
+
+box-shadow:0 10px 25px rgba(0,0,0,.18);
+
+z-index:999;
+
+}
+
+/* seta */
+
+.keyword::before{
+
+content:"";
+
+position:absolute;
+
+bottom:115%;
+left:50%;
+
+transform:translateX(-50%);
+
+border-width:8px;
+border-style:solid;
+
+border-color:#081b4b transparent transparent transparent;
+
+opacity:0;
+visibility:hidden;
+
+transition:.25s;
+
+z-index:999;
+
+}
+
+.keyword:hover::after,
+.keyword:hover::before{
+
+opacity:1;
+visibility:visible;
+
+}
+
+</style>
+
+<!-- HTML -->
+
+<body>
+
+<div class="sidebar">
+
+<div>
+
+<div class="logo">
+<h1>Radar NR-1</h1>
+<p>Saúde e Segurança</p>
+</div>
+
+<div class="menu">
+<button>Dashboard</button>
+<button>Checklist NR-1</button>
+<button>Histórico</button>
+<button>Relatórios</button>
+<button>Plano de Ação</button>
+</div>
+
+</div>
+
+<div class="user-box">
+<strong>Metalúrgica XPTO</strong>
+<p>Administrador</p>
+</div>
+
+</div>
+
+<div class="main">
+
+<div class="topbar">
+<div>
+<h1>Checklist NR-1</h1>
+<p>Avaliação de Gerenciamento de Riscos Ocupacionais</p>
+</div>
+</div>
+
+<!-- CARDS -->
+
+<div class="cards">
+
+<div class="card">
+<h3>Conformidade Geral</h3>
+<div class="value" id="scoreCard">0%</div>
+</div>
+
+<div class="card">
+<h3>Itens Críticos</h3>
+<div class="value" id="criticalCard">0</div>
+</div>
+
+<div class="card">
+<h3>Total Respondido</h3>
+<div class="value" id="answeredCard">0</div>
+</div>
+
+<div class="card">
+<h3>Última Avaliação</h3>
+<div class="value" id="lastDate">--/--</div>
+</div>
+
+</div>
+
+<div class="content">
+
+<!-- TABELA -->
+
+<div class="table-box">
+
+<div class="filters">
+
+<select id="filterPriority">
+<option value="todos">Todas prioridades</option>
+<option value="ALTA">Alta</option>
+<option value="MÉDIA">Média</option>
+<option value="BAIXA">Baixa</option>
+</select>
+
+<input type="text" id="searchInput" placeholder="Buscar pergunta...">
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>Pergunta</th>
+<th>Resposta</th>
+<th>Prioridade</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+<div class="actions">
+
+<button class="primary" onclick="calculateResult()">
+Salvar Avaliação
+</button>
+
+<button class="secondary" onclick="generatePDF()">
+Gerar PDF
+</button>
+
+<button class="secondary" onclick="resetChecklist()">
+Limpar
+</button>
+
+</div>
+
+<!-- HISTÓRICO -->
+
+<div class="history">
+
+<h2>Histórico de Avaliações</h2>
+
+<div id="historyList"></div>
+
+</div>
+
+</div>
+
+<!-- IA -->
+
+<div class="ai-box">
+
+<div class="ai-title">
+<h2>Assistente IA</h2>
+<div class="badge">NR-1</div>
+</div>
+
+<div class="chat" id="chatBox">
+
+<div class="msg bot">
+Olá! Sou especialista em NR-1.<br>
+Posso responder apenas perguntas relacionadas à NR-1.
+</div>
+
+</div>
+
+<div class="chat-input">
+
+<input
+type="text"
+id="chatInput"
+placeholder="Digite sua pergunta..."
+>
+
+<button onclick="sendMessage()">Enviar</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+question:"A empresa possui inventário de riscos atualizado?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Existe Programa de Gerenciamento de Riscos (PGR)?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Os riscos psicossociais são avaliados?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Há plano de ação para riscos identificados?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Há treinamentos periódicos?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"A comunicação sobre SST é clara?",
+priority:"BAIXA",
+weight:1
+}
+
+/* =========================================
+NOVAS PERGUNTAS NR-1
+ADICIONE NO ARRAY questions
+========================================= */
+
+,{
+
+question:"Existe controle de validade dos EPIs?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Os colaboradores recebem treinamento sobre evacuação?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Há sinalização adequada de segurança na empresa?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Existe controle de acidentes de trabalho?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Os acidentes são investigados formalmente?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Há inspeções periódicas de segurança?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Existe gestão de riscos ergonômicos?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Os colaboradores conhecem os procedimentos de emergência?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Existe controle de produtos químicos perigosos?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Há fichas FISPQ acessíveis aos trabalhadores?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Existe monitoramento de riscos ambientais?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"A empresa realiza DDS regularmente?",
+priority:"BAIXA",
+weight:1
+},
+
+{
+question:"Existe política interna de SST documentada?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Os gestores participam das ações de SST?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Existe análise preliminar de riscos (APR)?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Há treinamentos específicos para trabalho em altura?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Existe controle de acesso em áreas de risco?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Os trabalhadores terceirizados seguem normas SST?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Existe manutenção preventiva de máquinas?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"As máquinas possuem proteção adequada?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Há controle de jornadas excessivas de trabalho?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Existe programa de prevenção de incêndios?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Os extintores estão dentro da validade?",
+priority:"ALTA",
+weight:3
+},
+
+{
+question:"Há simulados de emergência periódicos?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Existe canal para denúncia de riscos ocupacionais?",
+priority:"BAIXA",
+weight:1
+},
+
+{
+question:"Os colaboradores recebem orientação sobre saúde mental?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Existe controle de ruído ocupacional?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Há medidas preventivas para fadiga ocupacional?",
+priority:"MÉDIA",
+weight:2
+},
+
+{
+question:"Existe monitoramento da qualidade do ar?",
+priority:"BAIXA",
+weight:1
+},
+
+{
+question:"Os trabalhadores recebem reciclagem periódica em SST?",
+priority:"MÉDIA",
+weight:2
+}
+
+];
+
+const tableBody = document.getElementById("tableBody");
+
+/* =========================================
+PALAVRAS CHAVE NR-1
+========================================= */
+
+function applyTooltips(text){
+
+const keywords = [
+
+{
+word:"Programa de Gerenciamento de Riscos",
+description:"O PGR é um documento obrigatório da NR-1 que identifica, avalia e controla riscos ocupacionais."
+},
+
+
+{
+word:"SST",
+description:"SST significa Segurança e Saúde no Trabalho."
+},
+
+{
+word:"fichas FISPQ ",
+description:"Ficha de Informações de Segurança de Produtos Químicos. "
+},
+
+{
+word:"APR",
+description:"Análise Preliminar de Riscos realizada para identificar e avaliar riscos ocupacionais."
+},
+
+{
+word:"EPIs",
+description:"Equipamentos de Proteção Individual utilizados para reduzir riscos ocupacionais."
+},
+
+{
+word:"riscos psicossociais",
+description:"Riscos ligados ao estresse, pressão, assédio e fatores emocionais no ambiente de trabalho."
+},
+
+{
+word:"inventário de riscos",
+description:"Documento que identifica perigos e riscos ocupacionais da empresa."
+},
+
+{
+word:"saúde ocupacional",
+description:"Conjunto de ações voltadas à proteção da saúde dos trabalhadores."
+},
+
+{
+word:"ergonômicos",
+description:"Riscos relacionados à postura, esforço repetitivo e condições físicas de trabalho."
+},
+
+{
+word:"DDS",
+description:"Diálogo Diário de Segurança realizado antes das atividades."
+},
+
+{
+word:"plano de emergência",
+description:"Procedimentos organizados para situações de incêndio, acidentes e evacuação."
+}
+
+];
+
+keywords.forEach(item=>{
+
+const regex =
+new RegExp(item.word,"gi");
+
+text = text.replace(
+
+regex,
+
+`<span
+class="keyword"
+data-tooltip="${item.description}">
+${item.word}
+</span>`
+
+);
+
+});
+
+return text;
+
+}
+
+function renderQuestions(){
+
+tableBody.innerHTML = "";
+
+const filter =
+document.getElementById("filterPriority").value;
+
+const search =
+document.getElementById("searchInput")
+.value.toLowerCase();
+
+questions.forEach((q,index)=>{
+
+if(
+(filter !== "todos" && q.priority !== filter)
+) return;
+
+if(
+!q.question.toLowerCase().includes(search)
+) return;
+
+const priorityClass =
+q.priority === "ALTA"
+? "alta"
+: q.priority === "MÉDIA"
+? "media"
+: "baixa";
+
+tableBody.innerHTML += `
+
+<tr>
+
+<td>${applyTooltips(q.question)}</td>
+
+<td>
+
+<select onchange="saveLocal()"
+id="q${index}">
+
+<option value="">Selecione</option>
+<option value="sim">Sim</option>
+<option value="parcial">Parcial</option>
+<option value="nao">Não</option>
+
+</select>
+
+</td>
+
+<td>
+<span class="priority ${priorityClass}">
+${q.priority}
+</span>
+</td>
+
+<td id="status${index}">
+-
+</td>
+
+</tr>
+
+`;
+
+});
+
+loadLocal();
+
+}
+
+renderQuestions();
+
+document.getElementById("filterPriority")
+.addEventListener("change",renderQuestions);
+
+document.getElementById("searchInput")
+.addEventListener("input",renderQuestions);
+
+/* LOCAL STORAGE */
+
+function saveLocal(){
+
+questions.forEach((q,index)=>{
+
+const value =
+document.getElementById(`q${index}`)?.value;
+
+if(value){
+
+localStorage.setItem(`nr1_${index}`,value);
+
+}
+
+});
+
+}
+
+function loadLocal(){
+
+questions.forEach((q,index)=>{
+
+const saved =
+localStorage.getItem(`nr1_${index}`);
+
+if(saved){
+
+const select =
+document.getElementById(`q${index}`);
+
+if(select){
+
+select.value = saved;
+
+}
+
+}
+
+});
+
+}
+
+/* RESULTADO */
+
+function calculateResult(){
+
+let total = 0;
+let max = 0;
+let critical = 0;
+
+questions.forEach((q,index)=>{
+
+const value =
+document.getElementById(`q${index}`)?.value;
+
+max += q.weight;
+
+if(value === "sim"){
+
+total += q.weight;
+
+document.getElementById(`status${index}`)
+.innerHTML =
+'<span class="status-ok">✔</span>';
+
+}
+
+else if(value === "parcial"){
+
+total += q.weight / 2;
+
+document.getElementById(`status${index}`)
+.innerHTML =
+'⚠';
+
+}
+
+else{
+
+critical++;
+
+document.getElementById(`status${index}`)
+.innerHTML =
+'<span class="status-bad">✖</span>';
+
+}
+
+});
+
+const score =
+Math.round((total / max) * 100);
+
+document.getElementById("scoreCard")
+.innerText = score + "%";
+
+document.getElementById("criticalCard")
+.innerText = critical;
+
+document.getElementById("answeredCard")
+.innerText = questions.length;
+
+const today =
+new Date().toLocaleDateString();
+
+document.getElementById("lastDate")
+.innerText = today;
+
+/* HISTÓRICO */
+
+let history =
+JSON.parse(localStorage.getItem("nr1_history"))
+|| [];
+
+history.unshift({
+date:today,
+score
+});
+
+localStorage.setItem(
+"nr1_history",
+JSON.stringify(history)
+);
+
+renderHistory();
+
+saveLocal();
+
+}
+
+/* HISTÓRICO */
+
+function renderHistory(){
+
+const history =
+JSON.parse(localStorage.getItem("nr1_history"))
+|| [];
+
+const list =
+document.getElementById("historyList");
+
+list.innerHTML = "";
+
+history.slice(0,5).forEach(item=>{
+
+list.innerHTML += `
+<div class="history-item">
+<strong>${item.score}%</strong>
+- ${item.date}
+</div>
+`;
+
+});
+
+}
+
+renderHistory();
+
+/* PDF */
+
+async function generatePDF(){
+
+const { jsPDF } = window.jspdf;
+
+const dashboard =
+document.body;
+
+const canvas =
+await html2canvas(dashboard,{
+scale:2
+});
+
+const img =
+canvas.toDataURL("image/png");
+
+const pdf =
+new jsPDF("p","mm","a4");
+
+const width =
+pdf.internal.pageSize.getWidth();
+
+const height =
+(canvas.height * width)
+/
+canvas.width;
+
+pdf.addImage(img,'PNG',0,0,width,height);
+
+pdf.save("Relatorio-NR1.pdf");
+
+}
+
+/* CHATBOT NR-1 */
+
+function sendMessage(){
+
+const input =
+document.getElementById("chatInput");
+
+const text =
+input.value.trim();
+
+if(!text) return;
+
+const chat =
+document.getElementById("chatBox");
+
+chat.innerHTML += `
+<div class="msg user">
+${text}
+</div>
+`;
+
+input.value = "";
+
+const lower = text.toLowerCase();
+
+let response = "";
+
+if(
+lower.includes("pgr")
+){
+
+response =
+"O PGR é o Programa de Gerenciamento de Riscos previsto na NR-1.";
+
+}
+
+else if(
+lower.includes("epi")
+){
+
+response =
+"A NR-1 exige controle e orientação sobre uso adequado de EPIs.";
+
+}
+
+else if(
+lower.includes("risco")
+){
+
+response =
+"A NR-1 trata da identificação e gerenciamento de riscos ocupacionais.";
+
+}
+
+else if(
+lower.includes("treinamento")
+){
+
+response =
+"A NR-1 exige capacitação e treinamentos periódicos.";
+
+}
+
+else{
+
+response =
+"Posso responder apenas perguntas relacionadas à NR-1.";
+
+}
+
+chat.innerHTML += `
+<div class="msg bot">
+${response}
+</div>
+`;
+
+chat.scrollTop = chat.scrollHeight;
+
+}
+
+</script>
