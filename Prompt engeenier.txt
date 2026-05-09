@@ -1,0 +1,211 @@
+<!-- =========================================
+CHATBOT NR-1 COM OPENAI API
+✔ JavaScript puro
+✔ Campo para chave da API
+✔ Restrições NR-1
+✔ Sem Node.js
+✔ Fácil integração
+========================================= -->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat NR-1</title>
+
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      background:#f4f4f4;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+    }
+
+    .chat{
+      width:420px;
+      background:white;
+      border-radius:12px;
+      padding:20px;
+      box-shadow:0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    h2{
+      margin-bottom:15px;
+      text-align:center;
+    }
+
+    input, textarea, button{
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      box-sizing:border-box;
+    }
+
+    textarea{
+      resize:none;
+      height:100px;
+    }
+
+    button{
+      background:#0d6efd;
+      color:white;
+      border:none;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    button:hover{
+      background:#0b5ed7;
+    }
+
+    .resposta{
+      margin-top:20px;
+      background:#f1f1f1;
+      padding:15px;
+      border-radius:10px;
+      min-height:80px;
+      white-space:pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat">
+
+    <h2>Assistente NR-1</h2>
+
+    <!-- CHAVE API -->
+    <input 
+      type="password" 
+      id="apiKey" 
+      placeholder="Cole sua chave da OpenAI"
+    />
+
+    <!-- PERGUNTA -->
+    <textarea 
+      id="pergunta" 
+      placeholder="Digite sua pergunta sobre NR-1..."
+    ></textarea>
+
+    <button onclick="enviarPergunta()">
+      Perguntar
+    </button>
+
+    <!-- RESPOSTA -->
+    <div class="resposta" id="resposta">
+      A resposta aparecerá aqui...
+    </div>
+
+  </div>
+
+  <script>
+
+    async function enviarPergunta(){
+
+      const apiKey = document.getElementById("apiKey").value;
+      const pergunta = document.getElementById("pergunta").value;
+      const respostaDiv = document.getElementById("resposta");
+
+      if(!apiKey){
+        alert("Digite sua chave da API");
+        return;
+      }
+
+      if(!pergunta){
+        alert("Digite uma pergunta");
+        return;
+      }
+
+      respostaDiv.innerHTML = "Carregando...";
+
+      try{
+
+        const response = await fetch("https://api.openai.com/v1/responses", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+
+          body: JSON.stringify({
+
+            model: "gpt-4.1-nano",
+
+            input: [
+              {
+                role: "system",
+                content: [
+                  {
+                    type: "input_text",
+                    text: `
+Responde apenas perguntas relacionadas a NR-1.
+
+Perguntas sem relação a NR-1 devem ser respondidas apenas com:
+"desculpe, apenas perguntas relacionadas a NR-1"
+
+As perguntas devem ser respondidas de forma:
+- concisa
+- analítica
+- formal
+                    `
+                  }
+                ]
+              },
+
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "input_text",
+                    text: pergunta
+                  }
+                ]
+              }
+            ],
+
+            tools: [
+              {
+                type: "file_search",
+                vector_store_ids: [
+                  "vs_69ff84c41e28819186587d6482f6f8b6"
+                ]
+              }
+            ],
+
+            temperature: 1,
+            max_output_tokens: 2048,
+            top_p: 1
+
+          })
+
+        });
+
+        const data = await response.json();
+
+        console.log(data);
+
+        // PEGA TEXTO DA RESPOSTA
+        const texto = data.output_text || "Sem resposta.";
+
+        respostaDiv.innerHTML = texto;
+
+      }catch(error){
+
+        console.error(error);
+
+        respostaDiv.innerHTML = 
+          "Erro ao conectar com a OpenAI.";
+
+      }
+
+    }
+
+  </script>
+
+</body>
+</html>
