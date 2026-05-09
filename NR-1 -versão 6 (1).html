@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Checklist NR-1 | Dashboard Corporativo</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Inter',sans-serif;
+}
+
+body{
+    width:100vw;
+    min-height:100vh;
+    overflow-x:hidden;
+    background:linear-gradient(135deg,#dceeff,#b7d8ff,#8fc4ff);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+/* CONTAINER */
+
+.container{
+    width:100%;
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:390px 1fr;
+    gap:24px;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    background:rgba(255,255,255,0.18);
+    backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.3);
+    border-radius:28px;
+    padding:25px;
+    box-shadow:0 10px 35px rgba(0,0,0,0.12);
+
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    align-items:center;
+}
+
+.logo{
+    width:100%;
+}
+
+.logo h2{
+    color:#083b66;
+    font-size:28px;
+    margin-bottom:10px;
+}
+
+.logo p{
+    color:#35698f;
+    line-height:1.6;
+    font-size:14px;
+}
+
+.chart-container{
+    width:100%;
+    height:360px;
+    margin-top:5px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+}
+
+/* MAIN */
+
+.main{
+    background:rgba(255,255,255,0.18);
+    backdrop-filter:blur(18px);
+    border-radius:28px;
+    border:1px solid rgba(255,255,255,0.3);
+    padding:28px;
+    box-shadow:0 10px 35px rgba(0,0,0,0.12);
+}
+
+/* TOPO */
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.title h1{
+    color:#083b66;
+    font-size:34px;
+}
+
+.title span{
+    color:#35698f;
+    font-size:15px;
+}
+
+/* PROGRESSO */
+
+.progress-area{
+    min-width:280px;
+}
+
+.progress-label{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+    color:#083b66;
+    font-weight:700;
+}
+
+.progress-bar{
+    width:100%;
+    height:14px;
+    border-radius:999px;
+    overflow:hidden;
+    background:rgba(255,255,255,0.4);
+}
+
+.progress{
+    width:0%;
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#0077ff,#00b7ff);
+    transition:0.4s;
+}
+
+/* TABELA */
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 14px;
+}
+
+thead th{
+    color:#083b66;
+    text-transform:uppercase;
+    font-size:13px;
+    letter-spacing:1px;
+}
+
+tbody tr{
+    background:rgba(255,255,255,0.24);
+    transition:0.3s;
+}
+
+tbody tr:hover{
+    transform:translateY(-2px);
+    background:rgba(255,255,255,0.36);
+}
+
+tbody td{
+    padding:18px 12px;
+}
+
+.question{
+    min-width:400px;
+    color:#083b66;
+    font-weight:500;
+    line-height:1.5;
+}
+
+.center{
+    text-align:center;
+}
+
+/* RADIO */
+
+.radio-group{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.radio-group input{
+    appearance:none;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    border:2px solid #4b8fff;
+    cursor:pointer;
+    transition:0.3s;
+    background:white;
+}
+
+.radio-group input:checked{
+    border:7px solid #0077ff;
+    transform:scale(1.08);
+    box-shadow:0 0 12px rgba(0,119,255,0.35);
+}
+
+/* PRIORIDADE */
+
+.priority{
+    font-weight:800;
+    padding:8px 16px;
+    border-radius:999px;
+    display:inline-block;
+    min-width:90px;
+}
+
+.alta{
+    background:#ffdede;
+    color:#c62828;
+}
+
+.media{
+    background:#fff3d1;
+    color:#b97a00;
+}
+
+.baixa{
+    background:#ddf8e7;
+    color:#138848;
+}
+
+/* BOTOES */
+
+.actions{
+    margin-top:28px;
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+}
+
+button{
+    border:none;
+    padding:16px 26px;
+    border-radius:16px;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn-primary{
+    background:linear-gradient(135deg,#0077ff,#00a2ff);
+    color:white;
+    box-shadow:0 8px 18px rgba(0,119,255,0.3);
+}
+
+.btn-primary:hover{
+    transform:translateY(-2px);
+}
+
+.btn-secondary{
+    background:rgba(255,255,255,0.35);
+    color:#083b66;
+}
+
+.btn-pdf{
+    background:linear-gradient(135deg,#0047ab,#0077ff);
+    color:white;
+    box-shadow:0 8px 18px rgba(0,71,171,0.3);
+}
+
+/* RESULTADO */
+
+.result{
+    margin-top:30px;
+    display:none;
+    animation:fade .5s ease;
+}
+
+.result-card{
+    background:rgba(255,255,255,0.25);
+    border-radius:24px;
+    padding:25px;
+    border:1px solid rgba(255,255,255,0.3);
+}
+
+.result-card h2{
+    color:#083b66;
+    margin-bottom:16px;
+}
+
+.score{
+    font-size:52px;
+    font-weight:800;
+    color:#0077ff;
+}
+
+.classification{
+    margin-top:10px;
+    font-size:20px;
+    font-weight:700;
+    color:#083b66;
+}
+
+.tips{
+    margin-top:25px;
+}
+
+.tip-item{
+    background:rgba(255,255,255,0.35);
+    padding:16px;
+    border-radius:14px;
+    margin-bottom:12px;
+    border-left:6px solid #0077ff;
+    color:#083b66;
+    line-height:1.6;
+}
+
+/* ANIMACAO */
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* RESPONSIVO */
+
+@media(max-width:1200px){
+
+    .container{
+        grid-template-columns:1fr;
+    }
+
+    .chart-container{
+        height:300px;
+    }
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="container" id="dashboard">
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+            <h2>Radar NR-1</h2>
+
+            <p>
+                O gráfico aranha mostra o nível de conformidade da empresa em tempo real conforme o checklist é preenchido.
+            </p>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="radarChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+        <div class="top">
+
+            <div class="title">
+                <h1>Checklist NR-1</h1>
+                <span>Sistema Corporativo de Segurança do Trabalho</span>
+            </div>
+
+            <div class="progress-area">
+
+                <div class="progress-label">
+                    <span>Progresso</span>
+                    <span id="progressText">0%</span>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th align="left">Perguntas</th>
+                        <th>Sim</th>
+                        <th>Não</th>
+                        <th>Em Implementação</th>
+                        <th>Prioridade</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tableBody"></tbody>
+
+            </table>
+
+        </div>
+
+        <div class="actions">
+
+            <button class="btn-primary" onclick="calculateResult()">
+                Calcular Resultado
+            </button>
+
+            <button class="btn-secondary" onclick="resetChecklist()">
+                Reiniciar Checklist
+            </button>
+
+            <button class="btn-pdf" onclick="generatePDF()">
+                Exportar PDF
+            </button>
+
+        </div>
+
+        <div class="result" id="resultSection">
+
+            <div class="result-card">
+
+                <h2>Resultado da Avaliação</h2>
+
+                <div class="score" id="scoreValue">0%</div>
+
+                <div class="classification" id="classification"></div>
+
+                <div class="tips">
+
+                    <h2>Dicas para atingir 100% da NR-1</h2>
+
+                    <div id="tipsContainer"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+question:"A empresa possui Programa de Gerenciamento de Riscos (PGR) atualizado?",
+priority:"ALTA",
+tip:"Atualize imediatamente o PGR e mantenha revisões periódicas."
+},
+
+{
+question:"Os colaboradores recebem treinamentos periódicos de segurança?",
+priority:"ALTA",
+tip:"Implemente treinamentos recorrentes com registro formal."
+},
+
+{
+question:"Existe documentação de SST acessível aos trabalhadores?",
+priority:"MÉDIA",
+tip:"Centralize e disponibilize toda documentação de SST."
+},
+
+{
+question:"Os riscos ocupacionais são identificados regularmente?",
+priority:"ALTA",
+tip:"Realize análises contínuas dos riscos ocupacionais."
+},
+
+{
+question:"Existe plano de ação para riscos identificados?",
+priority:"ALTA",
+tip:"Crie planos preventivos com responsáveis e prazos."
+},
+
+{
+question:"Há comunicação eficiente sobre segurança do trabalho?",
+priority:"MÉDIA",
+tip:"Fortaleça a comunicação interna sobre prevenção."
+},
+
+{
+question:"Os EPIs são fornecidos corretamente?",
+priority:"ALTA",
+tip:"Garanta controle e fornecimento correto dos EPIs."
+},
+
+{
+question:"Existe acompanhamento da saúde ocupacional?",
+priority:"ALTA",
+tip:"Implemente monitoramento médico periódico."
+},
+
+{
+question:"A empresa possui indicadores de SST?",
+priority:"BAIXA",
+tip:"Crie dashboards e métricas de desempenho em SST."
+},
+
+{
+question:"Há participação dos trabalhadores nas ações preventivas?",
+priority:"MÉDIA",
+tip:"Estimule participação ativa dos colaboradores."
+}
+
+];
+
+const tableBody = document.getElementById("tableBody");
+
+questions.forEach((q,index)=>{
+
+let priorityClass =
+q.priority === "ALTA"
+? "alta"
+: q.priority === "MÉDIA"
+? "media"
+: "baixa";
+
+tableBody.innerHTML += `
+
+<tr>
+
+<td class="question">${q.question}</td>
+
+<td class="center">
+<div class="radio-group">
+<input type="radio" name="q${index}" value="sim"
+onchange="updateProgress();updateRadar();">
+</div>
+</td>
+
+<td class="center">
+<div class="radio-group">
+<input type="radio" name="q${index}" value="nao"
+onchange="updateProgress();updateRadar();">
+</div>
+</td>
+
+<td class="center">
+<div class="radio-group">
+<input type="radio" name="q${index}" value="implementacao"
+onchange="updateProgress();updateRadar();">
+</div>
+</td>
+
+<td class="center">
+<span class="priority ${priorityClass}">
+${q.priority}
+</span>
+</td>
+
+</tr>
+
+`;
+
+});
+
+/* PROGRESSO */
+
+function updateProgress(){
+
+let answered = 0;
+
+questions.forEach((q,index)=>{
+
+const selected =
+document.querySelector(`input[name="q${index}"]:checked`);
+
+if(selected){
+answered++;
+}
+
+});
+
+const percentage =
+(answered / questions.length) * 100;
+
+document.getElementById("progressBar").style.width =
+percentage + "%";
+
+document.getElementById("progressText").innerText =
+Math.round(percentage) + "%";
+
+}
+
+/* GRAFICO */
+
+const radarChart = new Chart(
+document.getElementById('radarChart'),
+{
+type:'radar',
+
+data:{
+
+labels:[
+'PGR',
+'Treinamentos',
+'SST',
+'Riscos',
+'Plano',
+'Comunicação',
+'EPIs',
+'Saúde',
+'Indicadores',
+'Participação'
+],
+
+datasets:[{
+
+label:'Conformidade NR-1',
+
+data:[0,0,0,0,0,0,0,0,0,0],
+
+fill:true,
+
+backgroundColor:'rgba(0,119,255,0.18)',
+
+borderColor:'#0077ff',
+
+pointBackgroundColor:'#0077ff',
+
+pointBorderColor:'#ffffff',
+
+pointHoverBackgroundColor:'#ffffff',
+
+pointHoverBorderColor:'#0077ff',
+
+borderWidth:3
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{
+labels:{
+color:'#083b66',
+font:{
+size:14,
+weight:'700'
+}
+}
+}
+
+},
+
+scales:{
+
+r:{
+
+beginAtZero:true,
+
+max:100,
+
+ticks:{
+display:false
+},
+
+grid:{
+color:'rgba(0,0,0,0.08)'
+},
+
+angleLines:{
+color:'rgba(0,0,0,0.08)'
+},
+
+pointLabels:{
+color:'#083b66',
+font:{
+size:12,
+weight:'600'
+}
+}
+
+}
+
+}
+
+}
+
+});
+
+function updateRadar(){
+
+let values = [];
+
+questions.forEach((q,index)=>{
+
+const selected =
+document.querySelector(`input[name="q${index}"]:checked`);
+
+if(!selected){
+
+values.push(0);
+
+}else if(selected.value === "sim"){
+
+values.push(100);
+
+}else if(selected.value === "implementacao"){
+
+values.push(50);
+
+}else{
+
+values.push(10);
+
+}
+
+});
+
+radarChart.data.datasets[0].data = values;
+radarChart.update();
+
+}
+
+/* RESULTADO */
+
+function calculateResult(){
+
+let yesCount = 0;
+let unanswered = false;
+let tipsHTML = "";
+
+questions.forEach((q,index)=>{
+
+const selected =
+document.querySelector(`input[name="q${index}"]:checked`);
+
+if(!selected){
+unanswered = true;
+return;
+}
+
+if(selected.value === "sim"){
+yesCount++;
+}
+
+if(selected.value === "nao"){
+
+tipsHTML += `
+
+<div class="tip-item">
+
+<strong>${q.question}</strong><br>
+
+${q.tip}
+
+</div>
+
+`;
+
+}
+
+});
+
+if(unanswered){
+
+alert("Responda todas as perguntas antes de calcular.");
+return;
+
+}
+
+const percentage =
+Math.round((yesCount / questions.length) * 100);
+
+document.getElementById("scoreValue").innerText =
+percentage + "%";
+
+let classification = "";
+
+if(percentage >= 80){
+
+classification = "Excelente";
+
+}else if(percentage >= 50){
+
+classification = "Regular";
+
+}else{
+
+classification = "Crítico";
+
+}
+
+document.getElementById("classification").innerHTML =
+`Classificação: <strong>${classification}</strong>`;
+
+document.getElementById("tipsContainer").innerHTML =
+tipsHTML || `
+<div class="tip-item">
+Parabéns! Sua empresa está próxima da conformidade total da NR-1.
+</div>
+`;
+
+document.getElementById("resultSection").style.display =
+"block";
+
+document.getElementById("resultSection")
+.scrollIntoView({behavior:"smooth"});
+
+}
+
+/* RESET */
+
+function resetChecklist(){
+
+document.querySelectorAll("input[type='radio']")
+.forEach(input=>{
+input.checked = false;
+});
+
+document.getElementById("progressBar").style.width = "0%";
+
+document.getElementById("progressText").innerText = "0%";
+
+document.getElementById("resultSection").style.display =
+"none";
+
+radarChart.data.datasets[0].data =
+[0,0,0,0,0,0,0,0,0,0];
+
+radarChart.update();
+
+}
+
+/* EXPORTAR PDF */
+
+async function generatePDF(){
+
+const { jsPDF } = window.jspdf;
+
+const dashboard = document.getElementById("dashboard");
+
+const canvas = await html2canvas(dashboard, {
+scale:2
+});
+
+const imgData = canvas.toDataURL("image/png");
+
+const pdf = new jsPDF("p","mm","a4");
+
+const pdfWidth = pdf.internal.pageSize.getWidth();
+
+const pdfHeight =
+(canvas.height * pdfWidth) / canvas.width;
+
+pdf.addImage(imgData,'PNG',0,0,pdfWidth,pdfHeight);
+
+pdf.save("Checklist-NR1-Resultado.pdf");
+
+}
+
+</script>
+
+</body>
+</html>
